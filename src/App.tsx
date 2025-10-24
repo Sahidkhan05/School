@@ -3,14 +3,15 @@
 // import ForgetPassword from "./pages/ForgetPassword";
 // import ResetPassword from "./pages/ResetPassword";
 import Sidebar from "./Components/Sidebar";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
-      // <SignupForm />
-      // <LoginForm />
-      // <ForgetPassword />
-      // <ResetPassword />
+    <div className="flex bg-gray-50 min-h-screen">
       <Sidebar />
+      <Dashboard />
+    </div>
+    
   );
 }
 
