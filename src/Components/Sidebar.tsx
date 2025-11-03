@@ -3,7 +3,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ImBooks } from "react-icons/im";
 import { MdMenuOpen, MdDashboard } from "react-icons/md";
 import { SiGoogleclassroom } from "react-icons/si";
-import {FaChalkboardTeacher, FaUserCheck, FaMoneyBillWave, FaBookOpen, FaBook, FaUserCircle
+import {
+  FaChalkboardTeacher,
+  FaUserCircle,
+  FaBookOpen,
+  FaMoneyBillWave,
+  FaUserCheck,
+  FaBook,
+  FaBusAlt,
 } from "react-icons/fa";
 import { IoMegaphoneOutline } from "react-icons/io5";
 
@@ -17,6 +24,8 @@ const menuItems = [
   { icon: <FaMoneyBillWave size={26} />, label: "Fees", path: "/fees" },
   { icon: <FaBookOpen size={26} />, label: "Homework", path: "/homework" },
   { icon: <FaBook size={26} />, label: "Library", path: "/library" },
+  { icon: <MdDashboard size={26} />, label: "Timetable", path: "/timetable" },
+  { icon: <FaBusAlt size={26} />, label: "Transport", path: "/transport" },
 ];
 
 export default function Sidebar() {

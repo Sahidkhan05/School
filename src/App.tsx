@@ -46,6 +46,10 @@ import LoginForm from "./pages/Login";
 import SignupForm from "./pages/Signup";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
+import BusRouteDetails from "./pages/Transport/BusRouteDetail";
+import AddBus from "./pages/Transport/AddBus";
+import TransportMain from "./pages/Transport/TransportMain";
+import TimetableMain from "./pages/Timetable/TimetableMain";
 
 function App() {
   // 🧩 Added: simple login state (no real authentication)
@@ -116,6 +120,13 @@ function App() {
                     <Route path="/library/issued-books" element={<IssuedBooks />} />
                     {/* 🧩 alias route for older link */}
                     <Route path="/library/issued" element={<IssuedBooks />} />
+
+                    <Route path="/transport" element={<TransportMain />} />
+                    <Route path="/transport/add-bus" element={<AddBus />} />
+                    <Route path="/transport/route/:busId" element={<BusRouteDetails/>} />
+
+                    {/* Timetable management */}
+            <Route path="/timetable" element={<TimetableMain />} />
                   </Routes>
                 </div>
               </div>
