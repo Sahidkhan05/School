@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../config";
 
 type FormState = {
   fullname: string;
@@ -64,7 +65,8 @@ function SignupForm() {
     };
 
     try {
-      const res = await fetch("https://school-bos-backend.onrender.com/Account/register/", {
+      
+      const res = await fetch(`${BASE_URL}/Account/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
