@@ -23,10 +23,10 @@ function LoginForm({ setIsLoggedIn }: LoginFormProps) {
     };
 
     try {
-      const API_BASE = (window as any).__API_BASE__ || (window as any).REACT_APP_API_BASE || "https://school-bos-backend.onrender.com/Account";
+      const API_BASE = "https://school-bos-backend.onrender.com/Account";
+      console.log(`${API_BASE}/login/`)
       const res = await fetch(`${API_BASE}/login/`, {
         method: "POST",
-        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -63,7 +63,6 @@ function LoginForm({ setIsLoggedIn }: LoginFormProps) {
         } else if (text) {
           msg = text;
         }
-        alert(msg);
         setLoading(false);
         return;
       }
