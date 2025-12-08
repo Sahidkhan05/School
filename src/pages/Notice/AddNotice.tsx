@@ -57,11 +57,9 @@ export default function AddNotice() {
   const [title, setTitle] = useState(editNotice?.title ?? "");
   const [description, setDescription] = useState(editNotice?.description ?? "");
   const [applicableDate, setApplicableDate] = useState(editNotice?.applicableDate ?? "");
-  // per-student targeting removed from form; postedBy is derived and not editable
-  const computedPostedBy = editNotice?.postedBy ?? (userRole === "teacher" ? localStorage.getItem("teacherName") || "Teacher" : "Admin");
   const [classesList, setClassesList] = useState<Array<{ id: number | string; name: string }>>([]);
   const [studentsInClass, setStudentsInClass] = useState<Student[]>([]);
-  const [teachersList, setTeachersList] = useState<Teacher[]>([]);
+  const [teachersList] = useState<Teacher[]>([]);
   const [selectedApplicable, setSelectedApplicable] = useState<Set<string>>(new Set(editNotice?.applicableTo ?? []));
   const [selectAllApplicable, setSelectAllApplicable] = useState(false);
 
