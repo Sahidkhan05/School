@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 
 type FormState = {
   fullname: string;
@@ -245,9 +247,9 @@ function SignupForm() {
 
           <p className="text-center text-gray-600 text-sm">
             Already have an account?{" "}
-            <a href="/login" className="text-blue-900 underline">
-              Log in
-            </a>
+            <Link to="/login" className="text-blue-900 underline">
+  Log in
+</Link>
           </p>
         </div>
       </div>

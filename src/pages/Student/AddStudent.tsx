@@ -33,7 +33,7 @@ interface StudentForm {
   language_preference: string;
 }
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://school-bos-backend.onrender.com";
 
 export default function AddStudent() {
   const navigate = useNavigate();
@@ -297,8 +297,8 @@ export default function AddStudent() {
       fd.append("documents_meta", JSON.stringify(docsMeta));
 
       // Decide endpoint/method
-      const url = isEditMode && id ? `${API_BASE}/Account/students/${id}/` : `${API_BASE}/Account/students/create/`;
-      const method = isEditMode && id ? "PUT" : "POST"; 
+      const url = isEditMode && id ? `${API_BASE}/Account/students/${id}/update/` : `${API_BASE}/Account/students/create/`;
+      const method = isEditMode && id ? "PUT" : "POST";
 
       // Build headers: do NOT set Content-Type for multipart; browser will set boundary
       const headers: HeadersInit = { ...getAuthHeaders() };

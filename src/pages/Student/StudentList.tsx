@@ -129,6 +129,10 @@ export default function StudentList() {
     return matchesNameOrEnroll && matchesClass;
   });
 
+ 
+
+    
+
   // Delete student via API (and update local UI)
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this student?")) return;
@@ -140,7 +144,7 @@ export default function StudentList() {
         ...getAuthHeaders(),
       };
 
-      const res = await fetch(`${API_BASE}/Account/students/${id}/`, {
+      const res = await fetch(`${API_BASE}/Account/students/${id}/delete/`, {
         method: "DELETE",
         headers,
       });
@@ -284,12 +288,12 @@ export default function StudentList() {
                       👁 View
                     </button>
 
-                    <button
-                      onClick={() => navigate(`/edit-student/${student.id}`)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      ✏️ Edit
-                    </button>
+                   <button
+  onClick={() => navigate(`/edit-student/${student.id}`)}
+  className="text-blue-600 hover:text-blue-800"
+>
+  ✏️ Edit
+</button>
 
                     {userRole === "admin" && (
                       <button

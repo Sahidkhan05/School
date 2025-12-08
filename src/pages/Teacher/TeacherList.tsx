@@ -295,7 +295,7 @@ export default function TeacherList() {
                   }</td>
                   <td className="px-6 py-3">
                     <div className="font-medium text-gray-800">{teacher.department}</div>
-                    <div className="text-xs text-gray-500">{teacher.specialization || "-"}</div>
+                   
                   </td>
                   <td className="px-6 py-3">{teacher.qualifications || "-"}</td>
                   <td className="px-6 py-3 flex justify-center gap-3 text-lg">

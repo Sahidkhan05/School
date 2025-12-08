@@ -55,9 +55,7 @@ export default function AddTeacher() {
 
   const API_BASE = (window as any).__API_BASE__ || (window as any).REACT_APP_API_BASE || "https://school-bos-backend.onrender.com/Account";
 
-  const CLASS_OPTIONS = [
-    "Nursery", "LKG", "UKG", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-  ];
+  ;
 
   const LANGUAGES = [
     "English", "Hindi", "Bengali", "Telugu", "Marathi", "Tamil", "Urdu", "Gujarati", "Kannada", "Malayalam", "Odia", "Punjabi", "Assamese", "Maithili", "Santali", "Nepali", "Sanskrit", "Other",
@@ -465,9 +463,7 @@ export default function AddTeacher() {
     <main className="max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow mt-6">
       <h2 className="text-2xl font-bold mb-4">{isEditMode ? "Edit Teacher" : "Add Teacher"}</h2>
       <div className="mb-2">
-        <a href={`${API_BASE}/teachers/`} target="_blank" rel="noreferrer" className="text-sm text-blue-600 underline">
-          Open backend teachers list
-        </a>
+        
       </div>
 
       {serverErrors && (
@@ -522,7 +518,7 @@ export default function AddTeacher() {
 
         {/* subject input + Add button (Unchanged) */}
         <div className="col-span-2">
-          <label className="font-medium block mb-1">subject (add one or more)</label>
+          <label className="font-medium block mb-1">Subject (add one or more)</label>
           <div className="flex gap-2">
             <input
               type="text"
@@ -583,22 +579,12 @@ export default function AddTeacher() {
 
         {/* DISPLAY: Joining Date (read-only copy) and Updated At */}
         <div className="col-span-2">
-          <label className="font-medium">Joining Date (display)</label>
+          <label className="font-medium">Joining Date</label>
           <input type="text" value={formatDateForInput(formData.joiningDate)} readOnly className="border rounded-lg px-4 py-2 w-full mt-2" />
         </div>
 
         {/* SELECT: Class Handled (one) -> classes_handled */}
-        <div>
-          <label className="font-medium">Class Handled (one)</label>
-          <select name="classes_handled" value={formData.classes_handled} onChange={handleChange} className="border rounded-lg px-4 py-2 w-full mt-2">
-            <option value="">Select Class</option>
-            {CLASS_OPTIONS.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
+        
 
         {/* SELECT: Language preference -> language_preference */}
         <div>

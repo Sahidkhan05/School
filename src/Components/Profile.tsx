@@ -2,18 +2,24 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import EditProfileModal from "./EditProfileModal";
 import LogoutConfirmModal from "./LogoutConfirmModal";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
+  const navigate = useNavigate();
+
+  // 🟦 Sidebar jaisa localStorage se data lo
+  const userEmail = localStorage.getItem("userEmail");
+  const userName = localStorage.getItem("userName");
+
   const [open, setOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  // 🧩 Mock user data (you can later fetch this from backend)
+  // 🟩 Dynamic user data
   const [user, setUser] = useState({
-    name: "Annie besant school",
-    email: "abs@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=7",
-    password: "password123", // 🧩 For demo only
+    name: userName || "Unknown User",
+    email: userEmail || "example@gmail.com",
+    avatar: "/images/Navonous_Logo.png"
   });
 
   const handleLogout = () => {
@@ -22,7 +28,7 @@ export default function Profile() {
 
   const confirmLogout = () => {
     localStorage.removeItem("loggedIn");
-    window.location.href = "/login"; // ✅ Redirect
+    navigate("/login");
   };
 
   return (
@@ -77,7 +83,7 @@ export default function Profile() {
         )}
       </AnimatePresence>
 
-      {/* 🧩 Edit Modal */}
+      {/* Edit Modal */}
       <AnimatePresence>
         {showEditModal && (
           <EditProfileModal
@@ -88,7 +94,7 @@ export default function Profile() {
         )}
       </AnimatePresence>
 
-      {/* 🧩 Logout Modal */}
+      {/* Logout Modal */}
       <AnimatePresence>
         {showLogoutConfirm && (
           <LogoutConfirmModal
