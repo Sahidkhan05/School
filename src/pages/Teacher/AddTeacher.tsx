@@ -461,7 +461,20 @@ export default function AddTeacher() {
 
   return (
     <main className="max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow mt-6">
-      <h2 className="text-2xl font-bold mb-4">{isEditMode ? "Edit Teacher" : "Add Teacher"}</h2>
+      <div className="flex justify-between items-center mb-4">
+  <h2 className="text-2xl font-bold">
+    {isEditMode ? "Edit Teacher" : "Add Teacher"}
+  </h2>
+
+  <button
+    type="button"
+    onClick={() => navigate("/teachers")}
+    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg"
+  >
+    Back
+  </button>
+</div>
+      
       <div className="mb-2">
         
       </div>

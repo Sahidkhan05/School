@@ -165,26 +165,7 @@ export default function TeacherList() {
     })();
   };
 
-  const refreshTeachers = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE}/teachers/`);
-      if (res.ok) {
-        const data = await res.json();
-        const raw = Array.isArray(data)
-          ? data
-          : (Array.isArray(data.results) ? data.results : []);
-        setTeachers(raw.map(normalizeTeacher));
-        setLoading(false);
-        return;
-      }
-      setError(`Server returned ${res.status}`);
-    } catch (e:any) {
-      setError(String(e));
-    }
-    setLoading(false);
-  };
+  
 
   const handleDownload = (file: DocumentFile) => {
     try {
@@ -226,13 +207,7 @@ export default function TeacherList() {
           >
             + Add Teacher
           </button>
-          <button
-            onClick={() => refreshTeachers()}
-            className="px-3 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-            title="Refresh from server"
-          >
-            ⟳ Refresh
-          </button>
+          
         </div>
       </div>
 

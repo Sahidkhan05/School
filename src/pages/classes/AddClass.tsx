@@ -133,10 +133,28 @@ export default function AddEditClass() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg space-y-4">
-        <h2 className={`text-2xl font-bold text-center ${isEditMode ? "text-yellow-600" : "text-blue-600"}`}>
-          {isEditMode ? "Edit Class" : "Add New Class"}
-        </h2>
+      <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl space-y-4">
+       <div className="relative mb-4">
+  {/* Heading */}
+  <h2
+    className={`text-2xl font-bold mb-4 ${
+      isEditMode ? "text-yellow-600" : "text-black"
+    }`}
+  >
+    {isEditMode ? "Edit Class" : "Add New Class"}
+  </h2>
+
+  {/* Back Button - right side */}
+  <button
+    type="button"
+    onClick={() => navigate("/classes")}
+    className="absolute right-0 top-1/2 -translate-y-1/2 px-4 py-2 
+               bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg"
+  >
+    Back
+  </button>
+</div>
+
 
         <input type="text" name="className" placeholder="Class Name (e.g. 1, 2, Nursery)" value={formData.className} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
 

@@ -12,8 +12,8 @@ interface Student {
   id: number;
   enrollment_no: string;
   student_name: string;
+  class_display: string;
   class_name: string;
-  section_name: string;
   parent_name: string;
   parent_contact: string;
   phone_number: string;
@@ -117,7 +117,7 @@ export default function StudentList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const classOptions = ["All Classes", ...Array.from(new Set(students.map((s) => s.class_name || ""))).filter(Boolean)];
+  const classOptions = ["All Classes", ...Array.from(new Set(students.map((s) => s.class_display || ""))).filter(Boolean)];
 
   const filteredStudents = students.filter((student) => {
     const term = searchTerm.trim().toLowerCase();
@@ -125,7 +125,7 @@ export default function StudentList() {
       term === "" ||
       (student.student_name || "").toLowerCase().includes(term) ||
       ((student.enrollment_no || "") as string).toLowerCase().includes(term);
-    const matchesClass = selectedClass === "All Classes" || student.class_name === selectedClass;
+    const matchesClass = selectedClass === "All Classes" || student.class_display === selectedClass;
     return matchesNameOrEnroll && matchesClass;
   });
 
@@ -261,26 +261,26 @@ export default function StudentList() {
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
             <tr>
-              <th className="px-6 py-3">Enroll No</th>
-              <th className="px-6 py-3">Name</th>
-              <th className="px-6 py-3">Class</th>
-              <th className="px-6 py-3">Section</th>
-              <th className="px-6 py-3">Created At</th>
-              <th className="px-6 py-3">Contact</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th className="px-4 py-2">Enroll No</th>
+              <th className="px-4 py-2">Name</th>
+              <th className="px-4 py-2">Class</th>
+              <th className="px-4 py-2">Room-No</th>
+              <th className="px-4 py-2">Created At</th>
+              <th className="px-4 py-2">Contact</th>
+              <th className="px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredStudents.length > 0 ? (
               filteredStudents.map((student) => (
                 <tr key={student.id} className="border-b hover:bg-gray-50 transition">
-                  <td className="px-6 py-3">{student.enrollment_no}</td>
-                  <td className="px-6 py-3 font-medium text-gray-800">{student.student_name}</td>
-                  <td className="px-6 py-3">{student.class_name}</td>
-                  <td className="px-6 py-3">{student.section_name}</td>
-                  <td className="px-6 py-3">{student.created_at ? student.created_at.slice(0, 10) : "-"}</td>
-                  <td className="px-6 py-3">{student.phone_number || student.parent_contact}</td>
-                  <td className="px-6 py-3 flex justify-center gap-3 text-lg">
+                  <td className="px-4 py-2">{student.enrollment_no}</td>
+                  <td className="px-4 py-2 font-medium text-gray-800">{student.student_name}</td>
+                  <td className="px-4 py-2">{student.class_display.replace("Class ", "")}</td>
+                  <td className="px-4 py-2">{student.class_name}</td>
+                  <td className="px-4 py-2">{student.created_at ? student.created_at.slice(0, 10) : "-"}</td>
+                  <td className="px-4 py-2">{student.phone_number || student.parent_contact}</td>
+                  <td className="px-4 py-2 flex justify-center gap-3 text-lg">
                     <button
                       onClick={() => setSelectedStudent(student)}
                       className="text-green-600 hover:text-green-800"
@@ -355,10 +355,10 @@ export default function StudentList() {
                 <strong>Enrollment No:</strong> {selectedStudent.enrollment_no}
               </p>
               <p>
-                <strong>Class:</strong> {selectedStudent.class_name}
+                <strong>Class:</strong> {selectedStudent.class_display}
               </p>
               <p>
-                <strong>Section:</strong> {selectedStudent.section_name}
+                <strong>Section:</strong> {selectedStudent.class_name}
               </p>
               <p>
                 <strong>Parent Name:</strong> {selectedStudent.parent_name}
