@@ -82,20 +82,6 @@ export default function ManageResults() {
     setMode("view");
   };
 
-  const handleGenerateReportCard = async (studentId: number, examId: number) => {
-    try {
-      setLoading(true);
-      await reportCardApi.generateReportCard({ student: studentId, exam: examId });
-      alert("Report card generated successfully!");
-      fetchResults();
-    } catch (error: any) {
-      console.error("Failed to generate report card:", error);
-      alert(error.response?.data?.error || "Failed to generate report card");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const visibleResults = results;
 
   return (
