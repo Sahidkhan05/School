@@ -26,7 +26,8 @@ export default function SelectExamPage() {
     term: "Term 1",
     exam_date: new Date().toISOString().split("T")[0],
     status: "upcoming",
-    class_name: undefined,
+    classes: [],
+    total_marks: 100,
   });
 
   // Fetch Exams
@@ -65,8 +66,8 @@ export default function SelectExamPage() {
   // CREATE / UPDATE
   const handleSaveExam = async () => {
     try {
-      if (!formExam.name || !formExam.exam_date || !formExam.class_name) {
-        alert("Please fill all required fields!");
+      if (!formExam.name || !formExam.exam_date || !formExam.classes || formExam.classes.length === 0) {
+        alert("Please fill all required fields and select at least one class!");
         return;
       }
 
@@ -111,13 +112,23 @@ export default function SelectExamPage() {
       term: "Term 1",
       exam_date: new Date().toISOString().split("T")[0],
       status: "upcoming",
-      class_name: undefined,
+      classes: [],
+      total_marks: 100,
     });
   };
 
   const handleNext = () => {
     if (!selectedExam) return alert("Please select an exam first!");
     navigate(`/exams/add-exams/select-class?exam=${selectedExam.id}&examName=${selectedExam.name}`);
+  };
+
+  const handleClassSelection = (classId: number) => {
+    const currentClasses = formExam.classes || [];
+    if (currentClasses.includes(classId)) {
+      setFormExam({ ...formExam, classes: currentClasses.filter((id) => id !== classId) });
+    } else {
+      setFormExam({ ...formExam, classes: [...currentClasses, classId] });
+    }
   };
 
   if (loading) {
@@ -152,11 +163,10 @@ export default function SelectExamPage() {
             {examList.map((exam) => (
               <div
                 key={exam.id}
-                className={`flex justify-between items-center border p-4 rounded-lg cursor-pointer transition ${
-                  selectedExam?.id === exam.id
+                className={`flex justify-between items-center border p-4 rounded-lg cursor-pointer transition ${selectedExam?.id === exam.id
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-300 hover:border-blue-300"
-                }`}
+                  }`}
                 onClick={() => setSelectedExam(exam)}
               >
                 <label className="flex items-center gap-3 flex-1 cursor-pointer">
@@ -169,6 +179,9 @@ export default function SelectExamPage() {
                     <div className="font-semibold text-gray-800">{exam.name}</div>
                     <div className="text-sm text-gray-600">
                       {exam.exam_type} • {exam.academic_year} • {exam.term}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Classes: {exam.classes_detail?.map(c => `${c.class_name} ${c.section}`).join(", ") || "N/A"}
                     </div>
                   </div>
                 </label>
@@ -184,9 +197,8 @@ export default function SelectExamPage() {
           <button
             onClick={handleNext}
             disabled={!selectedExam}
-            className={`px-8 py-2 rounded-md ${
-              selectedExam ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500"
-            }`}
+            className={`px-8 py-2 rounded-md ${selectedExam ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500"
+              }`}
           >
             Next
           </button>
@@ -198,7 +210,7 @@ export default function SelectExamPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
             {/* Modal Header */}
-            <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white">
+            <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
               <h3 className="text-xl font-bold">
                 {viewMode === "list" ? "All Exams" : formExam.id ? "Edit Exam" : "Create Exam"}
               </h3>
@@ -233,11 +245,16 @@ export default function SelectExamPage() {
                           <p className="text-sm text-gray-500">
                             {ex.exam_type} • {ex.academic_year} • {ex.term}
                           </p>
+                          <p className="text-xs text-gray-500">
+                            Classes: {ex.classes_detail?.map(c => `${c.class_name} ${c.section}`).join(", ")}
+                          </p>
                         </div>
 
                         <div className="flex gap-2">
                           <button
                             onClick={() => {
+                              // When editing, ensure classes are mapped to IDs if needed
+                              // The API returns classes as IDs in the 'classes' field, so it should be fine
                               setFormExam(ex);
                               setViewMode("create");
                             }}
@@ -271,21 +288,34 @@ export default function SelectExamPage() {
                       />
                     </div>
 
-                    {/* Class */}
+                    {/* Classes (Multi-Select) */}
                     <div>
-                      <label className="block text-sm font-medium mb-1">Class</label>
-                      <select
-                        value={formExam.class_name || ""}
-                        onChange={(e) => setFormExam({ ...formExam, class_name: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border rounded-lg"
-                      >
-                        <option value="">Select Class</option>
+                      <label className="block text-sm font-medium mb-1">Classes</label>
+                      <div className="border rounded-lg p-3 max-h-40 overflow-y-auto grid grid-cols-2 gap-2">
                         {classes.map((cls) => (
-                          <option key={cls.id} value={cls.id}>
-                            {cls.class_name} - {cls.section}
-                          </option>
+                          <label key={cls.id} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formExam.classes?.includes(cls.id)}
+                              onChange={() => handleClassSelection(cls.id)}
+                            />
+                            <span>{cls.class_name} - {cls.section}</span>
+                          </label>
                         ))}
-                      </select>
+                      </div>
+                      {formExam.classes?.length === 0 && <p className="text-red-500 text-xs mt-1">Select at least one class</p>}
+                    </div>
+
+                    {/* Total Marks */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Total Marks (Auto-distributed to subjects)</label>
+                      <input
+                        type="number"
+                        value={formExam.total_marks || ""}
+                        onChange={(e) => setFormExam({ ...formExam, total_marks: Number(e.target.value) })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        placeholder="e.g. 500"
+                      />
                     </div>
 
                     {/* Exam Type + Date */}
@@ -297,7 +327,7 @@ export default function SelectExamPage() {
                           onChange={(e) =>
                             setFormExam({
                               ...formExam,
-                              exam_type: e.target.value as Exam["exam_type"], // FIXED
+                              exam_type: e.target.value as Exam["exam_type"],
                             })
                           }
                           className="w-full px-3 py-2 border rounded-lg"
