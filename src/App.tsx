@@ -77,6 +77,7 @@ import MarksEntryPage from "./pages/Exams/MarksEntryPage";
 import ClassSelectPage from "./pages/Exams/ClassSelectPage";
 import SelectExamPage from "./pages/Exams/SelectExamPage";
 import ResultsPage from "./pages/Exams/ResultsPage";
+import TeacherPayrollPage from "./pages/Teacher/TeacherPayrollPage";
 
 
 
@@ -192,6 +193,8 @@ function App() {
                       {/*  Teacher dashboard */}
 
                       <Route path="/teacher" element={<TeacherDasboard />} />
+                      <Route path="/teacher/:id/payroll" element={<TeacherPayrollPage />} />
+
 
                       {/*  Exam & Grades */}
                       <Route path="/exams" element={<ExamsPage />} />

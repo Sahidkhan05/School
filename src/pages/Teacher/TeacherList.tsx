@@ -287,6 +287,13 @@ export default function TeacherList() {
                     >
                       ✏️ Edit
                     </button>
+
+                     <button
+  onClick={() => navigate(`/teacher/${teacher.id}/payroll`)}
+  className="text-purple-600 hover:text-purple-800"
+>
+  💰 Payroll
+</button>
                     <button
                       onClick={() => handleDelete(teacher.id)}
                       className="text-red-600 hover:text-red-800"
