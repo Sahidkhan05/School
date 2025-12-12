@@ -16,7 +16,8 @@ export interface Exam {
     id?: number;
     name: string;
     exam_type: 'mid_term' | 'final' | 'quiz' | 'assignment' | 'unit_test';
-    class_name: number;
+    classes: number[]; // Changed from class_name to classes array
+    classes_detail?: { id: number; class_name: string; section: string }[]; // Added for display
     academic_year: string;
     term: string;
     total_marks?: number;

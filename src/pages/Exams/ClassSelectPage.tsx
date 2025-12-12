@@ -24,14 +24,29 @@ export default function SelectClassPage() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await axios.get(API_ENDPOINTS.school.classes);
-        setClasses(res.data);
+        if (!selectedExamId) {
+          // Fallback if no exam selected (though flow prevents this)
+          const res = await axios.get(API_ENDPOINTS.school.classes);
+          setClasses(res.data);
+          return;
+        }
+
+        // Fetch the specific exam to get its associated classes
+        const examRes = await axios.get(`${API_ENDPOINTS.school.exams}${selectedExamId}/`);
+        const examData = examRes.data;
+
+        if (examData.classes_detail && examData.classes_detail.length > 0) {
+          setClasses(examData.classes_detail);
+        } else {
+          // Fallback if no classes linked (shouldn't happen with new logic)
+          setClasses([]);
+        }
       } catch (e) {
         console.error("Failed to fetch classes", e);
       }
     };
     fetchClasses();
-  }, []);
+  }, [selectedExamId]);
 
   const handleNext = () => {
     if (!selectedClass) return alert("Please select a class!");

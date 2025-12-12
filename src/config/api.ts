@@ -43,6 +43,7 @@ export const API_ENDPOINTS = {
         buses: `${API_BASE_URL}/schoolApp/buses/`,
         teacherAttendance: `${API_BASE_URL}/schoolApp/teacher-attendance/`,
         markTeacher: `${API_BASE_URL}/schoolApp/mark/teacher/`,
+        exams: `${API_BASE_URL}/schoolApp/exams/`,
     },
 } as const;
 

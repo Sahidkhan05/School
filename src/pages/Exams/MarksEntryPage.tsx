@@ -48,30 +48,62 @@ export default function MarksEntryPage() {
         }));
         setStudents(studentsData);
 
-        // Load subjects
-        const resAllSubjects = await axios.get(`${API_BASE_URL}/schoolApp/subjects/`);
-        const allSubjects = resAllSubjects.data || [];
+        // Load Exam Subjects (to get max_marks and subject list)
+        let examSubjects: any[] = [];
+        if (examId) {
+          try {
+            const resExamSubjects = await axios.get(`${API_BASE_URL}/schoolApp/exams/${examId}/subjects/`);
+            examSubjects = resExamSubjects.data || [];
+            console.log("Fetched Exam Subjects:", examSubjects);
+          } catch (e) {
+            console.error("Failed to fetch exam subjects", e);
+          }
+        }
 
-        const resClass = await axios.get(`${API_BASE_URL}/schoolApp/classes/${id}/`);
-        const classSubjectNames = resClass.data.subjects || [];
+        // Map exam subjects to component state
+        // If exam subjects exist, use them. Otherwise fall back to class subjects (legacy behavior)
+        let subjectList: SubjectType[] = [];
+        let initialMaxMarks: Record<number, number> = {};
 
-        const subjectList = classSubjectNames
-          .map((subName: string) => {
-            const found = allSubjects.find((s: any) => s.subject === subName);
-            return found ? { name: subName, id: found.id } : null;
-          })
-          .filter(Boolean) as SubjectType[];
+        if (examSubjects.length > 0) {
+          subjectList = examSubjects.map((es: any) => ({
+            name: es.subject_name || "Unknown Subject",
+            id: es.subject // This is the subject ID
+          }));
+
+          examSubjects.forEach((es: any) => {
+            initialMaxMarks[es.subject] = Number(es.max_marks);
+          });
+          console.log("Using Exam Subjects Max Marks:", initialMaxMarks);
+        } else {
+          console.log("No Exam Subjects found, using fallback.");
+          // Fallback: Load all subjects and filter by class
+          const resAllSubjects = await axios.get(`${API_BASE_URL}/schoolApp/subjects/`);
+          const allSubjects = resAllSubjects.data || [];
+          const resClass = await axios.get(`${API_BASE_URL}/schoolApp/classes/${id}/`);
+          const classSubjectNames = resClass.data.subjects || [];
+
+          subjectList = classSubjectNames
+            .map((subName: string) => {
+              const found = allSubjects.find((s: any) => s.subject === subName);
+              return found ? { name: subName, id: found.id } : null;
+            })
+            .filter(Boolean) as SubjectType[];
+
+          subjectList.forEach(sub => {
+            initialMaxMarks[sub.id] = 100; // Default if no exam subject config found
+          });
+        }
 
         setSubjects(subjectList);
+        setMaxMarks(initialMaxMarks);
 
         let initialMarks: Record<number, Record<number, number>> = {};
-        let initialMaxMarks: Record<number, number> = {};
 
         studentsData.forEach((stu: StudentType) => {
           initialMarks[stu.id] = {};
           subjectList.forEach((sub) => {
             initialMarks[stu.id][sub.id] = 0;
-            initialMaxMarks[sub.id] = 100;
           });
         });
 
@@ -84,18 +116,25 @@ export default function MarksEntryPage() {
             });
 
             existingMarks.forEach((m: any) => {
-              initialMarks[m.student][m.subject] = Number(m.marks_obtained);
-              initialMaxMarks[m.subject] = Number(m.max_marks);
+              if (initialMarks[m.student]) {
+                initialMarks[m.student][m.subject] = Number(m.marks_obtained);
+              }
+              // We prioritize max_marks from ExamSubject, but if missing, use from Grade
+              if (!initialMaxMarks[m.subject]) {
+                initialMaxMarks[m.subject] = Number(m.max_marks);
+              }
             });
 
-            setIsEditing(false); // marks are saved → disable editing by default
+            if (existingMarks.length > 0) {
+              setIsEditing(false); // marks are saved → disable editing by default
+            }
           } catch {
             console.log("No existing marks found");
           }
         }
 
         setMarks(initialMarks);
-        setMaxMarks(initialMaxMarks);
+        // setMaxMarks(initialMaxMarks); // Already set above, but updated in existing marks block if needed
 
       } catch (err) {
         console.error("Failed:", err);
@@ -197,9 +236,8 @@ export default function MarksEntryPage() {
                 disabled={!isEditing}
                 value={Number(maxMarks[sub.id])}
                 onChange={(e) => handleMaxMarksChange(sub.id, Number(e.target.value))}
-                className={`border rounded px-2 py-2 w-full ${
-                  !isEditing ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border rounded px-2 py-2 w-full ${!isEditing ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
               />
             </div>
           ))}
@@ -237,9 +275,8 @@ export default function MarksEntryPage() {
                       onChange={(e) =>
                         handleMarkChange(stu.id, sub.id, Number(e.target.value))
                       }
-                      className={`border rounded px-2 py-1 w-full ${
-                        !isEditing ? "bg-gray-100 cursor-not-allowed" : ""
-                      }`}
+                      className={`border rounded px-2 py-1 w-full ${!isEditing ? "bg-gray-100 cursor-not-allowed" : ""
+                        }`}
                     />
                   </td>
                 ))}
@@ -276,11 +313,10 @@ export default function MarksEntryPage() {
         <button
           onClick={handleSave}
           disabled={saving || !isEditing}
-          className={`px-6 py-2 rounded text-white ${
-            saving || !isEditing
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
+          className={`px-6 py-2 rounded text-white ${saving || !isEditing
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-green-600 hover:bg-green-700"
+            }`}
         >
           {saving ? "Saving..." : "Save Marks"}
         </button>

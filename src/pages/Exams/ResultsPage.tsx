@@ -10,6 +10,7 @@ export default function ResultsPage() {
     const [loading, setLoading] = useState(false);
     const [exams, setExams] = useState<any[]>([]);
     const [classes, setClasses] = useState<any[]>([]);
+    const [allClasses, setAllClasses] = useState<any[]>([]); // Store all classes
 
     const [selectedExam, setSelectedExam] = useState<string>("");
     const [selectedClass, setSelectedClass] = useState<string>("");
@@ -28,11 +29,35 @@ export default function ResultsPage() {
                 axios.get(API_ENDPOINTS.school.classes)
             ]);
             setExams(examsRes || []);
+            setAllClasses(classesRes.data || []);
             setClasses(classesRes.data || []);
         } catch (error) {
             console.error("Failed to load initial data:", error);
         }
     };
+
+    // Filter classes when exam is selected
+    useEffect(() => {
+        if (selectedExam) {
+            const exam = exams.find((e) => e.id === Number(selectedExam));
+            if (exam && exam.classes_detail) {
+                setClasses(exam.classes_detail);
+                // Reset class filter if the currently selected class is not in the exam's classes
+                if (selectedClass) {
+                    const isClassInExam = exam.classes_detail.some(
+                        (c: any) => c.id === Number(selectedClass)
+                    );
+                    if (!isClassInExam) {
+                        setSelectedClass("");
+                    }
+                }
+            } else {
+                setClasses(allClasses);
+            }
+        } else {
+            setClasses(allClasses);
+        }
+    }, [selectedExam, exams, allClasses, selectedClass]);
 
     const handleSearch = async () => {
         if (!selectedExam || !selectedClass) {
