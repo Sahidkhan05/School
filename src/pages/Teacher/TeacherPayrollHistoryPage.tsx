@@ -37,7 +37,7 @@ export default function TeacherPayrollHistoryPage() {
     <div className="p-6 max-w-3xl mx-auto">
 
       {/* Back Button */}
-      {/* Back Button - Top Right */}
+      
 <div className="flex justify-end mb-4">
   <button
     onClick={() => navigate(-1)}

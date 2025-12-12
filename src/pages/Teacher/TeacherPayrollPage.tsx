@@ -234,7 +234,7 @@ Final Salary: ₹${finalSalary}
             {/* 🔥 NEW HISTORY BUTTON */}
             <button
               onClick={() => navigate(`/teacher/${id}/payroll-history`)}
-              className="mb-4 px-4 py-2 bg-blue-500  text-gray-700 rounded"
+              className="mb-4 px-4 py-2 bg-blue-500  text-white rounded"
             >
               View History
             </button>
