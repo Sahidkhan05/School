@@ -78,6 +78,7 @@ import ClassSelectPage from "./pages/Exams/ClassSelectPage";
 import SelectExamPage from "./pages/Exams/SelectExamPage";
 import ResultsPage from "./pages/Exams/ResultsPage";
 import TeacherPayrollPage from "./pages/Teacher/TeacherPayrollPage";
+import TeacherPayrollHistoryPage from "./pages/Teacher/TeacherPayrollHistoryPage";
 
 
 
@@ -194,6 +195,8 @@ function App() {
 
                       <Route path="/teacher" element={<TeacherDasboard />} />
                       <Route path="/teacher/:id/payroll" element={<TeacherPayrollPage />} />
+                      <Route path="/teacher/:id/payroll-history" element={<TeacherPayrollHistoryPage />} />
+
 
 
                       {/*  Exam & Grades */}
