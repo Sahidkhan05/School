@@ -59,8 +59,6 @@ import TransportMain from "./pages/Transport/TransportMain";
 import TimetableMain from "./pages/Timetable/TimetableMain";
 
 // 🧮 Exam module
-import ManageExams from "./pages/ExamsResults/ManageExams";
-
 import { ExamStoreProvider } from "./context/ExamStoreContext";
 
 // 🧾 Results module
@@ -72,8 +70,7 @@ import AddStudent from "./pages/Student/AddStudent";
 import StudentList from "./pages/Student/StudentList";
 import AddTeacher from "./pages/Teacher/AddTeacher";
 import TeacherList from "./pages/Teacher/TeacherList";
-import ExamsResultsHome from "./pages/ExamsResults/ExamsResultsHome";
-import ManageResults from "./pages/ExamsResults/ManageResults";
+
 import ExamsPage from "./pages/Exams/ExamsPage";
 
 import MarksEntryPage from "./pages/Exams/MarksEntryPage";
@@ -188,12 +185,7 @@ function App() {
                       <Route path="/edit-teacher/:id" element={<AddTeacher />} />
                       <Route path="/teachers" element={<TeacherList />} />
 
-                      {/* exams and result routes */}
-
-                      <Route path="/exams-results" element={<ExamsResultsHome />} />
-                      <Route path="/manage-exams" element={<ManageExams />} />
-                      <Route path="/manage-results" element={<ManageResults />} />
-
+                     
 
 
 

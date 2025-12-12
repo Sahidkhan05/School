@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { marksApi } from "../../api/exams";
-
 import { API_BASE_URL } from "../../config/api";
 
 type StudentType = {
@@ -34,15 +33,14 @@ export default function MarksEntryPage() {
   const [maxMarks, setMaxMarks] = useState<Record<number, number>>({});
   const [saving, setSaving] = useState(false);
   const [topPerformers, setTopPerformers] = useState<any[]>([]);
-
-
+  const [isEditing, setIsEditing] = useState(true); // default editable
 
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
-        // Fetch students
+        // Load students
         const resStudents = await axios.get(`${API_BASE_URL}/schoolApp/class/${id}/students/`);
         const studentsData = (resStudents.data || []).map((s: any) => ({
           id: s.id,
@@ -51,52 +49,58 @@ export default function MarksEntryPage() {
         }));
         setStudents(studentsData);
 
-        // Fetch all subjects to get real IDs
+        // Load subjects
         const resAllSubjects = await axios.get(`${API_BASE_URL}/schoolApp/subjects/`);
         const allSubjects = resAllSubjects.data || [];
 
-        // Fetch class to get subjects list (names)
         const resClass = await axios.get(`${API_BASE_URL}/schoolApp/classes/${id}/`);
         const classSubjectNames = resClass.data.subjects || [];
 
-        // Map class subject names to real subject objects
-        const subjectList = classSubjectNames.map((subName: string) => {
-          const foundSub = allSubjects.find((s: any) => s.subject === subName);
-          return {
-            name: subName,
-            id: foundSub ? foundSub.id : 0, // Use real ID or 0 if not found (should be handled)
-          };
-        }).filter((s: SubjectType) => s.id !== 0); // Filter out subjects that weren't found in DB
+        const subjectList = classSubjectNames
+          .map((subName: string) => {
+            const found = allSubjects.find((s: any) => s.subject === subName);
+            return found ? { name: subName, id: found.id } : null;
+          })
+          .filter(Boolean) as SubjectType[];
 
         setSubjects(subjectList);
 
-        // Initialize marks
-        const initialMarks: Record<number, Record<number, number>> = {};
-        const initialMaxMarks: Record<number, number> = {};
+        let initialMarks: Record<number, Record<number, number>> = {};
+        let initialMaxMarks: Record<number, number> = {};
 
         studentsData.forEach((stu: StudentType) => {
           initialMarks[stu.id] = {};
-          subjectList.forEach((sub: SubjectType) => {
+          subjectList.forEach((sub) => {
             initialMarks[stu.id][sub.id] = 0;
-            initialMaxMarks[sub.id] = 100; // Default max marks
+            initialMaxMarks[sub.id] = 100;
           });
         });
+
+        // Load existing marks
+        if (examId) {
+          try {
+            const existingMarks = await marksApi.getMarks({
+              exam: Number(examId),
+              class: id,
+            });
+
+            existingMarks.forEach((m: any) => {
+              initialMarks[m.student][m.subject] = Number(m.marks_obtained);
+              initialMaxMarks[m.subject] = Number(m.max_marks);
+            });
+
+            setIsEditing(false); // marks are saved → disable editing by default
+          } catch {
+            console.log("No existing marks found");
+          }
+        }
 
         setMarks(initialMarks);
         setMaxMarks(initialMaxMarks);
 
-        // Fetch existing marks if available
-        if (examId) {
-          try {
-            await marksApi.getMarks({ exam: Number(examId), class: id });
-            // TODO: Populate existing marks if needed
-          } catch (err) {
-            console.log("No existing marks found");
-          }
-        }
-      } catch (e) {
-        console.error("Failed to fetch data:", e);
-        alert("Failed to load data. Please try again.");
+      } catch (err) {
+        console.error("Failed:", err);
+        alert("Failed to load data.");
       }
     };
 
@@ -111,44 +115,36 @@ export default function MarksEntryPage() {
   };
 
   const handleMaxMarksChange = (subjectId: number, value: number) => {
-    setMaxMarks((prev) => ({
-      ...prev,
-      [subjectId]: value,
-    }));
+    setMaxMarks((prev) => ({ ...prev, [subjectId]: value }));
   };
 
   const getAutoTotal = (studentId: number) => {
-    return subjects.reduce((sum, sub) => sum + (marks[studentId]?.[sub.id] || 0), 0);
+    return subjects.reduce(
+      (sum, sub) => sum + Number(marks[studentId]?.[sub.id] || 0),
+      0
+    );
   };
 
   const getTotalMaxMarks = () => {
-    return subjects.reduce((sum, sub) => sum + (maxMarks[sub.id] || 0), 0);
+    return subjects.reduce(
+      (sum, sub) => sum + Number(maxMarks[sub.id] || 0),
+      0
+    );
   };
 
   const handleSave = async () => {
-    if (!examId) {
-      alert("No exam selected. Please go back and select an exam.");
-      return;
-    }
-
     try {
       setSaving(true);
 
-      // Prepare marks data for bulk entry
-      const marksData: Array<{
-        student: number;
-        subject: number;
-        marks_obtained: number;
-        max_marks: number;
-      }> = [];
+      const marksData: any[] = [];
 
       students.forEach((student) => {
         subjects.forEach((subject) => {
           marksData.push({
             student: student.id,
             subject: subject.id,
-            marks_obtained: marks[student.id]?.[subject.id] || 0,
-            max_marks: maxMarks[subject.id] || 100,
+            marks_obtained: marks[student.id][subject.id],
+            max_marks: maxMarks[subject.id],
           });
         });
       });
@@ -159,118 +155,109 @@ export default function MarksEntryPage() {
         marks: marksData,
       });
 
-      // Fetch top performers
-      const topPerf = await marksApi.getTopPerformers({
-        exam: Number(examId),
-        class: id,
-        limit: 3,
-      });
-      setTopPerformers(topPerf);
+      setIsEditing(false); // lock fields after save
 
-      alert("Marks saved successfully!");
-    } catch (e: any) {
-      console.error("Failed to save marks:", e);
-      alert(e.response?.data?.error || "Failed to save marks. Please try again.");
+      alert("Marks saved!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save marks.");
     } finally {
       setSaving(false);
     }
   };
 
-
-
-  if (!id) return <p className="p-6 text-red-500">No class selected.</p>;
-
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+
+      {/* PAGE HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-800">
+        <h2 className="text-3xl font-bold">
           {className} - {section} Marks Entry
         </h2>
-
       </div>
 
+      {/* Selected Exam */}
       {exam && (
-        <div className="mb-4 p-4 bg-blue-100 border-l-4 border-blue-500 rounded-lg max-w-lg">
-          <p className="font-medium text-gray-800">
-            Selected Exam: <span className="font-semibold">{exam}</span>
+        <div className="mb-4 p-4 bg-blue-100 rounded-lg">
+          <p className="font-medium">
+            Selected Exam: <b>{exam}</b>
           </p>
         </div>
       )}
 
-      {/* Max marks input for each subject */}
-      <div className="mb-6 bg-white p-4 rounded-lg shadow">
-        <h3 className="font-semibold mb-3">Set Maximum Marks for Each Subject</h3>
+      {/* MAX MARKS SECTION */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <h3 className="font-semibold mb-3">Maximum Marks</h3>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {subjects.map((sub) => (
             <div key={sub.id}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {sub.name}
-              </label>
+              <label>{sub.name}</label>
               <input
                 type="number"
-                min={0}
-                value={maxMarks[sub.id] || 100}
+                disabled={!isEditing}
+                value={Number(maxMarks[sub.id])}
                 onChange={(e) => handleMaxMarksChange(sub.id, Number(e.target.value))}
-                className="w-full px-3 py-2 border rounded"
-                placeholder="Max marks"
+                className={`border rounded px-2 py-2 w-full ${
+                  !isEditing ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
               />
             </div>
           ))}
         </div>
       </div>
 
-      {students.length > 0 && subjects.length > 0 ? (
-        <div className="overflow-x-auto bg-white rounded-2xl shadow-lg">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
-              <tr>
-                <th className="px-6 py-3">Enroll No</th>
-                <th className="px-6 py-3">Name</th>
+      {/* MARKS TABLE */}
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2">Enroll No</th>
+              <th className="px-4 py-2">Name</th>
+
+              {subjects.map((sub) => (
+                <th key={sub.id} className="px-4 py-2">{sub.name}</th>
+              ))}
+
+              <th className="px-4 py-2">Total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {students.map((stu) => (
+              <tr key={stu.id} className="border-b">
+                <td className="px-4 py-2">{stu.enrollmentNo}</td>
+                <td className="px-4 py-2">{stu.name}</td>
 
                 {subjects.map((sub) => (
-                  <th key={sub.id} className="px-6 py-3">
-                    {sub.name} (/{maxMarks[sub.id] || 100})
-                  </th>
+                  <td key={sub.id} className="px-4 py-2">
+                    <input
+                      type="number"
+                      disabled={!isEditing}
+                      value={Number(marks[stu.id]?.[sub.id] ?? 0)}
+                      onChange={(e) =>
+                        handleMarkChange(stu.id, sub.id, Number(e.target.value))
+                      }
+                      className={`border rounded px-2 py-1 w-full ${
+                        !isEditing ? "bg-gray-100 cursor-not-allowed" : ""
+                      }`}
+                    />
+                  </td>
                 ))}
 
-                <th className="px-6 py-3">Total</th>
+                <td className="px-4 py-2 font-semibold text-blue-600">
+                  {getAutoTotal(stu.id)} / {getTotalMaxMarks()}
+                </td>
               </tr>
-            </thead>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-            <tbody>
-              {students.map((stu) => (
-                <tr key={stu.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-3">{stu.enrollmentNo}</td>
-                  <td className="px-6 py-3">{stu.name}</td>
-
-                  {subjects.map((sub) => (
-                    <td key={sub.id} className="px-3 py-1">
-                      <input
-                        type="number"
-                        min={0}
-                        max={maxMarks[sub.id] || 100}
-                        value={marks[stu.id]?.[sub.id] ?? 0}
-                        onChange={(e) =>
-                          handleMarkChange(stu.id, sub.id, Number(e.target.value))
-                        }
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    </td>
-                  ))}
-
-                  <td className="px-6 py-2 font-semibold text-blue-700">
-                    {getAutoTotal(stu.id)} / {getTotalMaxMarks()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-gray-500 italic">No students or subjects found.</p>
-      )}
-
+      {/* BUTTON ROW */}
       <div className="mt-4 flex justify-end gap-4">
+
+        {/* BACK BUTTON */}
         <button
           onClick={() => navigate(-1)}
           className="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg"
@@ -278,39 +265,28 @@ export default function MarksEntryPage() {
           Back
         </button>
 
+        {/* EDIT BUTTON */}
+        <button
+          onClick={() => setIsEditing(true)}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          Edit Marks
+        </button>
+
+        {/* SAVE BUTTON */}
         <button
           onClick={handleSave}
-          disabled={saving}
-          className={`px-6 py-2 rounded ${saving
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-green-600 hover:bg-green-700"
-            } text-white`}
+          disabled={saving || !isEditing}
+          className={`px-6 py-2 rounded text-white ${
+            saving || !isEditing
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
         >
           {saving ? "Saving..." : "Save Marks"}
         </button>
+
       </div>
-
-      {/* Top 3 Toppers */}
-      {topPerformers.length > 0 && (
-        <div className="mt-6 p-4 bg-yellow-50 rounded-xl shadow border">
-          <h3 className="text-xl font-bold mb-3 text-yellow-800">🏆 Top 3 Toppers</h3>
-
-          {topPerformers.map((performer, index) => (
-            <div
-              key={performer.student_id}
-              className="flex justify-between items-center bg-white p-3 mb-2 rounded-lg shadow-sm border"
-            >
-              <span className="font-bold text-lg text-gray-700">#{index + 1}</span>
-              <span className="font-medium text-gray-800">{performer.student_name}</span>
-              <span className="font-semibold text-blue-700">
-                {performer.total_obtained} / {performer.total_max} ({performer.percentage}%)
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
-
     </div>
   );
 }
