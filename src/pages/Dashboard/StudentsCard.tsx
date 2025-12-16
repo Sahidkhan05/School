@@ -26,7 +26,7 @@ export default function StudentsCard({
       {/* Circular Percentage Stats */}
       <div className="flex justify-between items-center mt-4">
         {/* Boys */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col items-center">
           <div className="relative w-20 h-20">
             <div className="absolute inset-0 rounded-full border-[8px] border-blue-200"></div>
             <div
@@ -40,14 +40,15 @@ export default function StudentsCard({
               {boysPercent}%
             </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">Boys</p>
-            <p className="text-lg font-semibold text-gray-800">{totalBoys.toLocaleString()}</p>
-          </div>
+
+          {/* 👇 Graph ke niche text */}
+          <p className="mt-2 text-sm text-gray-600">
+            Boys: <span className="font-semibold">{boysPercent}%</span>
+          </p>
         </div>
 
         {/* Girls */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col items-center">
           <div className="relative w-20 h-20">
             <div className="absolute inset-0 rounded-full border-[8px] border-pink-200"></div>
             <div
@@ -61,17 +62,20 @@ export default function StudentsCard({
               {girlsPercent}%
             </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">Girls</p>
-            <p className="text-lg font-semibold text-gray-800">{totalGirls.toLocaleString()}</p>
-          </div>
+
+          {/* 👇 Graph ke niche text */}
+          <p className="mt-2 text-sm text-gray-600">
+            Girls: <span className="font-semibold">{girlsPercent}%</span>
+          </p>
         </div>
       </div>
 
       {/* Footer */}
       <div className="mt-4 text-sm text-gray-500 text-center border-t pt-2">
         Total Students:{" "}
-        <span className="font-semibold text-gray-800">{total.toLocaleString()}</span>
+        <span className="font-semibold text-gray-800">
+          {total.toLocaleString()}
+        </span>
       </div>
     </div>
   );

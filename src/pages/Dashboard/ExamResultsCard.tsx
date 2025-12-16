@@ -48,7 +48,7 @@ function Donut({
           strokeDasharray={`${dash} ${c - dash}`}
         />
       </svg>
-      <div className="absolute inset-0 grid place-items-center rotate-90">
+      <div className="absolute inset-0 grid place-items-center ">
         <div className="text-center leading-tight">
           <div className="text-xl font-bold text-gray-900">{percent}%</div>
           <div className="text-[11px] text-gray-500">Pass</div>

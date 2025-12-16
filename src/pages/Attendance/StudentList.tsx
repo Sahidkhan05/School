@@ -9,6 +9,12 @@ function AttendanceModal({ student, onClose, selectedClassId, onSaved }: { stude
   const [attendance, setAttendance] = useState<{ [key: string]: "Present" | "Absent" | "Normal" }>({});
   const [serverErrors, setServerErrors] = useState<any[]>([]);
 
+  // ===== Calendar UI helpers (ONLY ADDITION) =====
+const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const firstDay = new Date(year, month, 1).getDay(); // Sun = 0
+const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Monday start
+
+
   // Load attendance for selected month/year from server (fallback to localStorage)
   useEffect(() => {
     let mounted = true;
@@ -169,29 +175,49 @@ function AttendanceModal({ student, onClose, selectedClassId, onSaved }: { stude
         </div>
 
         {/* Calendar */}
-        <div className="grid grid-cols-7 gap-2 mb-4">
-            {[...Array(daysInMonth)].map((_, i) => {
-            const day = i + 1;
-            const status = attendance[day];
-            return (
-              <div
-                key={day}
-                className={`p-2 text-center rounded cursor-pointer border ${
-                  status === "Present"
-                    ? "bg-green-400 text-white"
-                    : status === "Absent"
-                    ? "bg-red-400 text-white"
-                    : status === "Normal"
-                    ? "bg-gray-300 text-black"
-                    : "bg-gray-100"
-                }`}
-                onClick={() => handleDayClick(day)}
-              >
-                {day}
-              </div>
-            );
-          })}
+       {/* Calendar */}
+<div className="mb-4">
+  {/* Weekday header */}
+  <div className="grid grid-cols-7 text-center text-sm font-semibold text-gray-500 mb-2">
+    {weekDays.map((d) => (
+      <div key={d}>{d}</div>
+    ))}
+  </div>
+
+  {/* Calendar grid */}
+  <div className="grid grid-cols-7 gap-2">
+    {/* Empty boxes before 1st date */}
+    {Array.from({ length: startOffset }).map((_, i) => (
+      <div key={`empty-${i}`} />
+    ))}
+
+    {/* Dates */}
+    {Array.from({ length: daysInMonth }).map((_, i) => {
+      const day = i + 1;
+      const status = attendance[day];
+
+      return (
+        <div
+          key={day}
+          onClick={() => handleDayClick(day)}
+          className={`h-10 flex items-center justify-center rounded-lg cursor-pointer font-medium border transition
+            ${
+              status === "Present"
+                ? "bg-green-400 text-white"
+                : status === "Absent"
+                ? "bg-red-400 text-white"
+                : status === "Normal"
+                ? "bg-gray-300 text-black"
+                : "bg-gray-100 hover:bg-gray-200"
+            }`}
+        >
+          {day}
         </div>
+      );
+    })}
+  </div>
+</div>
+
 
         {/* Show server-side validation errors if any */}
         <ErrorsBlock />

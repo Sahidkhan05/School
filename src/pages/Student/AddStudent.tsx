@@ -431,7 +431,32 @@ export default function AddStudent() {
           <option>Other</option>
         </select>
 
-        <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="border rounded-lg px-4 py-2" placeholder="Date of Birth" />
+        <div className="relative">
+  <input
+    type="date"
+    name="dob"
+    value={formData.dob}
+    onChange={handleChange}
+    required
+    className="peer w-full border border-gray-300 rounded-lg px-4 pt-6 pb-2 text-sm focus:outline-none focus:border-blue-500"
+  />
+
+  <label
+    className="
+      absolute left-4 top-2 text-xs text-gray-500
+      transition-all
+      peer-placeholder-shown:top-4
+      peer-placeholder-shown:text-sm
+      peer-placeholder-shown:text-gray-400
+      peer-focus:top-2
+      peer-focus:text-xs
+      peer-focus:text-blue-500
+    "
+  >
+    Date of Birth
+  </label>
+</div>
+
 
         <input type="date" name="admission_date" value={formData.admission_date} onChange={handleChange} className="border rounded-lg px-4 py-2" />
 
