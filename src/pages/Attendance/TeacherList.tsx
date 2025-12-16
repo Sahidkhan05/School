@@ -25,16 +25,17 @@ function AttendanceModal({
   }, [teacher, month, year]);
 
   /* ---------- Toggle day ---------- */
-  const toggleDay = (d: number) => {
+   const toggleDay = (day: number) => {
     setAttendance((prev) => {
-      const cur = prev[d];
-      const next =
-        cur === "Present"
-          ? "Absent"
-          : cur === "Absent"
-          ? "Normal"
-          : "Present";
-      return { ...prev, [d]: next };
+      const cur = prev[day];
+      let next: "Present" | "Absent" | "Normal";
+      if (cur === "Present") next = "Absent";
+      else if (cur === "Absent") next = "Normal";
+      else next = "Present"; // undefined or Normal -> Present
+      return {
+        ...prev,
+        [day]: next,
+      };
     });
   };
 

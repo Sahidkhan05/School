@@ -60,7 +60,7 @@ const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Monday start
   }, [student, month, year]);
 
   // cycle: Present -> Absent -> Normal -> Present
-  const handleDayClick = (day: number) => {
+  const toggleDay = (day: number) => {
     setAttendance((prev) => {
       const cur = prev[day];
       let next: "Present" | "Absent" | "Normal";
@@ -176,47 +176,47 @@ const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Monday start
 
         {/* Calendar */}
        {/* Calendar */}
-<div className="mb-4">
-  {/* Weekday header */}
-  <div className="grid grid-cols-7 text-center text-sm font-semibold text-gray-500 mb-2">
-    {weekDays.map((d) => (
-      <div key={d}>{d}</div>
-    ))}
-  </div>
+<div className="px-5 py-4">
+          {/* Weekday header */}
+          <div className="grid grid-cols-7 text-center text-sm font-semibold text-gray-500 mb-2">
+            {weekDays.map((d) => (
+              <div key={d}>{d}</div>
+            ))}
+          </div>
 
-  {/* Calendar grid */}
-  <div className="grid grid-cols-7 gap-2">
-    {/* Empty boxes before 1st date */}
-    {Array.from({ length: startOffset }).map((_, i) => (
-      <div key={`empty-${i}`} />
-    ))}
+          {/* Grid */}
+          <div className="grid grid-cols-7 gap-2">
+            {/* Empty slots */}
+            {Array.from({ length: startOffset }).map((_, i) => (
+              <div key={`empty-${i}`} />
+            ))}
 
-    {/* Dates */}
-    {Array.from({ length: daysInMonth }).map((_, i) => {
-      const day = i + 1;
-      const status = attendance[day];
+            {/* Days */}
+            {Array.from({ length: daysInMonth }).map((_, i) => {
+              const d = i + 1;
+              const s = attendance[d];
 
-      return (
-        <div
-          key={day}
-          onClick={() => handleDayClick(day)}
-          className={`h-10 flex items-center justify-center rounded-lg cursor-pointer font-medium border transition
-            ${
-              status === "Present"
-                ? "bg-green-400 text-white"
-                : status === "Absent"
-                ? "bg-red-400 text-white"
-                : status === "Normal"
-                ? "bg-gray-300 text-black"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
-        >
-          {day}
+              return (
+                <div
+                  key={d}
+                  onClick={() => toggleDay(d)}
+                  className={`h-10 flex items-center justify-center rounded-lg cursor-pointer font-medium transition
+                    ${
+                      s === "Present"
+                        ? "bg-green-500 text-white"
+                        : s === "Absent"
+                        ? "bg-red-500 text-white"
+                        : s === "Normal"
+                        ? "bg-gray-300"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    }`}
+                >
+                  {d}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      );
-    })}
-  </div>
-</div>
 
 
         {/* Show server-side validation errors if any */}
