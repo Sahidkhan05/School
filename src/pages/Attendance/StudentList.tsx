@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AttendanceModal } from "./TeacherList";
 
@@ -8,7 +8,6 @@ export default function StudentList() {
   const rawClassParam = params.classId ?? params.className ?? null;
   const [resolvedClassId, setResolvedClassId] = useState<string | null>(null);
   const [resolvedLabel, setResolvedLabel] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [allStudents, setAllStudents] = useState<any[]>([]);
@@ -116,43 +115,12 @@ export default function StudentList() {
     return () => {
       mounted = false;
     };
-  }, [rawClassParam, refreshKey]);
+  }, [rawClassParam]);
 
   const filteredStudents = allStudents.filter((stu) =>
     (stu.name || '').toLowerCase().includes(search.toLowerCase()) ||
     (stu.enrollmentNo || '').toLowerCase().includes(search.toLowerCase())
   );
-
-  // Mark today's attendance quickly as Present or Absent
-  const markTodayAttendance = (stuId: any, status: "Present" | "Absent") => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const day = today.getDate();
-    const raw = localStorage.getItem("attendance");
-    const allAttendance = raw ? JSON.parse(raw) : {};
-    const key = `${stuId}-${year}-${month}`;
-    const monthData = allAttendance[key] || {};
-    monthData[day] = status;
-    allAttendance[key] = monthData;
-    localStorage.setItem("attendance", JSON.stringify(allAttendance));
-
-    // Sync to backend (mark today's attendance)
-    fetch("https://school-bos-backend.onrender.com/schoolApp/mark/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        class_room: resolvedClassId || rawClassParam,
-        date: new Date().toISOString().slice(0, 10),
-        records: [{ student: stuId, status }],
-      }),
-    }).catch(() => {
-      // ignore network errors for now; local state is primary UI
-    });
-
-    // Trigger UI refresh
-    setAllStudents((prev) => [...prev]);
-  };
 
   return (
     <main className="bg-gray-50 min-h-screen p-6">
@@ -170,6 +138,9 @@ export default function StudentList() {
             <h1 className="text-2xl font-semibold text-gray-800">
               Students Attendance
             </h1>
+            {resolvedLabel && (
+              <div className="text-sm text-gray-600">{resolvedLabel}</div>
+            )}
           </div>
           <input
             className="border px-4 py-2 rounded-lg w-64"
