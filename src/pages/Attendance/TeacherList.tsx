@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 /* ===================== Attendance Modal ===================== */
-function AttendanceModal({
+export function AttendanceModal({
   teacher,
   onClose,
   
