@@ -6,7 +6,6 @@ import { AttendanceModal } from "./TeacherList";
 export default function StudentList() {
   const params = useParams<{ classId?: string; className?: string }>();
   const rawClassParam = params.classId ?? params.className ?? null;
-  const [resolvedClassId, setResolvedClassId] = useState<string | null>(null);
   const [resolvedLabel, setResolvedLabel] = useState<string | null>(null);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -36,14 +35,18 @@ export default function StudentList() {
     return total ? Math.round((present / total) * 100) : 0;
   };
 
-  const markToday = (id: number, status: "Present" | "Absent") => {
-    const d = new Date();
-    const key = `${id}-${d.getFullYear()}-${d.getMonth()}`;
-    const raw = localStorage.getItem("attendance");
-    const all = raw ? JSON.parse(raw) : {};
-    all[key] = { ...(all[key] || {}), [d.getDate()]: status };
+  const markToday = (studentId: number, status: string) => {
+    const today = new Date().toISOString().split("T")[0];
+    const key = `${studentId}-${today}`;
+    const raw = localStorage.getItem("attendance") || "{}";
+    const all = JSON.parse(raw);
+    
+    if (!all[key]) {
+      all[key] = {};
+    }
+    all[key][today] = status;
     localStorage.setItem("attendance", JSON.stringify(all));
-    setRefresh(Date.now());
+    setRefresh((prev) => prev + 1);
   };
 
   // Fetch students for the class from backend
@@ -80,7 +83,6 @@ export default function StudentList() {
       if (!classIdToUse) {
         // can't resolve class id
         if (mounted) setAllStudents([]);
-        setResolvedClassId(null);
         setResolvedLabel(rawClassParam ? String(rawClassParam) : null);
         return;
       }
@@ -100,8 +102,6 @@ export default function StudentList() {
             section: s.section || '',
           }));
           setAllStudents(mapped);
-          setResolvedClassId(classIdToUse);
-          // derive a label for header
           setResolvedLabel(`${mapped.length && mapped[0].class ? mapped[0].class : ''}` || String(rawClassParam));
         } else {
           setAllStudents([]);
